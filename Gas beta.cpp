@@ -3,6 +3,8 @@
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <cstdlib>
+#include <ctime>
 
 const float Dt = 0.05;
 const float RESISTANCE_COEF = 0.005;
@@ -73,7 +75,7 @@ struct Circle
 
     vector2f V;
 
-    float R = 50;
+    float R = 15;
 
     int Red = 50;
     int Green = 255;
@@ -194,10 +196,14 @@ void strikeAllBalls(Circle* Balls, int PartNumber)
 
 void drawAllBalls(Circle* Balls, int PartNumber)
 {
+    txBegin();
+
     for(int i = 0; i < PartNumber; i++)
     {
         drawCircle(Balls[i]);
     }
+
+    txEnd();
 }
 
 void addGravity(Circle* Balls, int PartNumber)
@@ -205,57 +211,50 @@ void addGravity(Circle* Balls, int PartNumber)
     for(int i = 0; i < PartNumber; i++)
         Balls[i].V.y = Balls[i].V.y + 5;
 }
+
+float countAverageVelocity(Circle* Balls, int PartNumber)
+{
+    float summa;
+    for(int i = 0; i < PartNumber; i++)
+       summa += len(Balls[i].V) ;
+
+    return(summa / PartNumber);
+}
+
+void spawnBalls(Circle* Balls, int PartNumber, int SCREEN_X, int SCREEN_Y)
+{
+    srand(time(NULL));
+    for(int i = 0; i < PartNumber; i ++)
+    {
+        Balls[i].Q.x = rand() % (SCREEN_X - 100) + 65;
+        Balls[i].Q.y = rand() % (SCREEN_Y - 100) + 65;
+        Balls[i].V.x = rand() % 150;
+        Balls[i].V.y = rand() % 150;
+
+    }
+
+
+}
 int main()
 {
-    int n = 8;
+
+    int n = 250;
+    float average;
     txCreateWindow(800,600);
 
     float WinFactor = 0;
     Circle* Balls = new Circle[n];
 
-    Balls[0].Q.x = 100;
-    Balls[0].Q.y = 300;
-    Balls[0].V.x = 90;
-    Balls[0].V.y = 0;
-
-    Balls[1].Q.x = 300;
-    Balls[1].Q.y = 300;
-    Balls[1].V.x = 90;
-    Balls[1].V.y = 50;
-
-    Balls[2].Q.x = 650;
-    Balls[2].Q.y = 300;
-    Balls[2].V.y = 15;
-    Balls[2].V.x = 75;
-
-    Balls[3].Q.x = 750;
-    Balls[3].Q.y = 400;
-    Balls[3].V.y = 30;
-    Balls[3].V.x = 25;
-
-    Balls[4].Q.x = 550;
-    Balls[4].Q.y = 50;
-    Balls[4].V.y = 15;
-    Balls[4].V.x = 50;
-
-    Balls[5].Q.x = 500;
-    Balls[5].Q.y = 250;
-    Balls[5].V.y = 0;
-    Balls[5].V.x = 15;
-
-    Balls[6].Q.x = 525;
-    Balls[6].Q.y = 450;
-    Balls[6].V.y = 50;
-    Balls[6].V.x = 15;
-
-    Balls[7].Q.x = 625;
-    Balls[7].Q.y = 450;
-    Balls[7].V.y = 50;
-    Balls[7].V.x = 45;
-
+    //Balls[0].Q.x = 100;
+    //Balls[0].Q.y = 300;
+    //Balls[0].V.x = 20;
+    //Balls[0].V.y = 500;
+    Balls[0].R = 15;
 
 
     txFillColor(0,0,0);
+    spawnBalls( Balls, n, SCREEN_X, SCREEN_Y);
+
 
     for(;;)
         {
@@ -265,10 +264,11 @@ int main()
             txClear();
             drawAllBalls(Balls, n);
 
-            txDrawText( 1, 10, 700, 50, " Look at this amazing gas! Press down to add gravity");
+            txDrawText( 1, 10, 700, 50, " Look at this amaing gas! Press down to add gravity");
 
             if (GetAsyncKeyState(VK_DOWN))
                 addGravity(Balls, n);
+
 
             txSleep(Dt);
         }
