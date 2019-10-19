@@ -13,8 +13,10 @@ const int SCREEN_X = 900;
 const float Dt = 0.05;
 const float RESISTANCE_COEF = 0.0005;
 
-struct Circle
+class Circle
 {
+    public:
+    
     vector2f Q;
 
     vector2f V;
